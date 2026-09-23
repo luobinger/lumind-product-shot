@@ -449,13 +449,19 @@ IMG_API_KEY=your-api-key
 命令示例：
 
 ```bash
+# 批量并发生成整套图包（推荐，多线程 + 长连接池复用 + 自动重试）
+python3 scripts/generate_image.py --batch-dir prompts/ --job-dir generated-images/product-pack-20260509-010946 -c 3
+
+# 单图生成
 python3 scripts/generate_image.py --prompt "clean product hero image..." --job-dir generated-images/product-pack-20260509-010946 --asset-type main --size 1024x1024
 python3 scripts/generate_image.py --prompt-file prompts/detail-01.txt --job-dir generated-images/product-pack-20260509-010946 --asset-type detail --size 1024x1536
 python3 scripts/generate_image.py --prompt-file prompts/angle-sheet.txt --image product.png --job-dir generated-images/product-pack-20260509-010946 --asset-type angle-sheet
-python3 scripts/generate_image.py --env-file .env --prompt-file prompt.txt --job-dir generated-images/product-pack-20260509-010946 --asset-type main
 ```
 
 规则：
+
+- 批量出整套图包时优先使用 `--batch-dir` 批量并发调用（`-c` 设置并发度，默认 3），脚本自动根据文件名推导 `main` 与 `detail` 并适配最佳尺寸，避免单图外部串行轮询。
+- 脚本底层内置 HTTP Keep-Alive 连接池与指数退避重试（针对 HTTP 429/500/502/503/504 与网络抖动），单图故障隔离不打断整体批处理，并在 `<job-dir>/batch-summary.json` 输出全套审计报告。
 
 - 短 Prompt 用 `--prompt`，长 Prompt 用 `--prompt-file`。
 - 有产品参考图时用 `--image product.png`；脚本会改用 `/images/edits` 并把本地图片作为参考图传入。

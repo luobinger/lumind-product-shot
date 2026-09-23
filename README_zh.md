@@ -26,6 +26,8 @@
 ## 核心特性
 
 - **端到端一键出图**：根据简单描述自动生成 5 张主图 + 7~9 张详情页图片（默认），全自动交付。
+- **高效批量并发流水线**：单命令支持 `--batch-dir`（扫描目录）或 `--batch-file`（任务清单），内置多线程并发池（`-c/--concurrency`），自动识别主图/长图尺寸并输出结构化清单报告 `batch-summary.json`，告别低效外部 bash 循环。
+- **智能连接池与指数退避重试**：纯标准库实现 Keep-Alive 长连接复用，遇到 HTTP 429/500/502/503/504 等临时抖动自动指数退避重试，大幅提升高并发与跨国调用韧性。
 - **多图视觉一致性**：自动对齐风格与产品主体，确保整套图包视觉统一，拒绝拼凑感。
 - **转化导向的文案与结构**：自带爆款逻辑，自动生成原汁原味 English (US) 文案，适配 Amazon 等渠道。
 - **广泛的框架兼容**：专为 Agent 打造，已在 OpenClaw、Hermes、Codex、Claude Code、WorkBuddy 等环境验证。
@@ -253,31 +255,41 @@ rm ~/.workbuddy/skills/lumind-product-shot   # 如果你建过软链
 ### 9. 命令参考
 
 ```text
-usage: lumind-product-shot [-h] [--prompt PROMPT | --prompt-file PROMPT_FILE]
+usage: lumind-product-shot [-h]
+                           [--prompt PROMPT | --prompt-file PROMPT_FILE | --batch-dir BATCH_DIR | --batch-file BATCH_FILE]
                            [--about] [--mode {auto,prompt,image}]
                            [--job-dir JOB_DIR]
                            [--asset-type {angle,angle-sheet,main,hero,detail,pdp-detail,extra,extras,custom}]
                            [--output-dir OUTPUT_DIR] [--env-file ENV_FILE]
                            [--size SIZE] [--quality QUALITY]
                            [--format {png,jpeg,webp}] [--n N] [--image IMAGE]
+                           [--concurrency CONCURRENCY]
+                           [--max-retries MAX_RETRIES]
+                           [--retry-delay RETRY_DELAY] [--timeout TIMEOUT]
 ```
 
 | 参数 | 取值 / 默认 | 作用 |
 | --- | --- | --- |
 | `-h`、`--help` | 开关 | 打印完整参数说明后退出 |
-| `--prompt` | 字符串 | 直接传入 Prompt，与 `--prompt-file` 互斥 |
+| `--prompt` | 字符串 | 直接传入 Prompt，与 `--prompt-file`、`--batch-dir`、`--batch-file` 互斥 |
 | `--prompt-file` | 路径 | 从文件读取 Prompt，长 Prompt 用这个 |
+| `--batch-dir`、`--prompts-dir` | 路径 | 包含多个 Prompt 文本文件的目录，按文件名顺序批量并发执行 |
+| `--batch-file`、`--manifest` | 路径 | 批量任务清单文件（支持 JSON 数组、JSONL 或按行列表） |
 | `--about` | 开关 | 打印技能名、版本与品牌信息后退出，无需 Prompt |
 | `--mode` | `auto`（默认）/ `prompt` / `image` | `auto` 配置齐全则生图、缺失则只打印 Prompt；`prompt` 绝不调用接口；`image` 要求配置完整 |
-| `--job-dir` | 路径 | 单次任务根目录。资产写入 `<job-dir>/<资产目录>/`，Prompt 写入 `<job-dir>/prompts/` |
-| `--asset-type` | `custom`（默认） | 选择输出子目录，映射见下表 |
+| `--job-dir` | 路径 | 单次任务根目录。资产写入 `<job-dir>/<资产目录>/`，Prompt 写入 `<job-dir>/prompts/`，汇总写入 `<job-dir>/batch-summary.json` |
+| `--asset-type` | `custom`（默认） | 选择输出子目录，批量模式下若文件名含 `main`/`detail` 会自动推导覆盖 |
 | `--output-dir` | `generated-images` | 旧版扁平输出目录，仅在未传 `--job-dir` 时生效 |
 | `--env-file` | 路径 | 指定 `.env`，跳过逐级向上查找 |
-| `--size` | `1024x1024` | 请求尺寸，详情页用 `1024x1536` |
+| `--size` | `1024x1024` | 请求尺寸；批量模式下若未显式指定，`detail` 自动适配为 `1024x1536` |
 | `--quality` | 未设置 | 服务商质量参数，如 `low`、`medium`、`high` |
 | `--format` | `png`（默认） | `png`、`jpeg` 或 `webp` |
 | `--n` | `1` | 单次生成张数，必须大于等于 1，小于 1 会被直接拒绝 |
 | `--image` | 路径 | 产品参考图。传入后改用图片编辑接口，以锁定产品一致性 |
+| `-c`、`--concurrency` | `3`（默认，范围 1-32） | 批量生成时的多线程并发工作线程数 |
+| `--max-retries` | `3`（默认） | 接口遇到 429、500、502、503、504 或网络中断时的最大重试次数，设为 0 禁用重试 |
+| `--retry-delay` | `2.0`（默认，秒） | 指数退避重试的基础退避等待时间 |
+| `--timeout` | `120.0`（默认，秒） | 单次网络请求与下载超时时间 |
 
 `--asset-type` 到目录的映射：
 
@@ -289,7 +301,7 @@ usage: lumind-product-shot [-h] [--prompt PROMPT | --prompt-file PROMPT_FILE]
 | `extra`、`extras` | `<job-dir>/extras/` |
 | `custom` | `<job-dir>/custom/` |
 
-既不传 `--prompt` 也不传 `--prompt-file`、同时不传 `--about`，会直接报错退出。这是刻意设计：缺 Prompt 必须响亮失败，而不是静默生成一张默认图。
+既不传 Prompt 也不传 `--about`，会直接报错退出。这是刻意设计：缺 Prompt 必须响亮失败，而不是静默生成一张默认图。
 
 ### 10. 常用配方
 
@@ -304,23 +316,27 @@ python3 scripts/generate_image.py \
   --size 1024x1024
 ```
 
-**B. 从 Prompt 文件批量出整套图包** —— 上方样例图包就是这样产出的
+**B. 从 Prompt 目录一键并发批量出整套图包（推荐）**
 
 ```bash
 JOB="generated-images/travel-pillow-pack-$(date +%Y%m%d-%H%M%S)"
 
-for f in prompts/main-*.txt; do
-  python3 scripts/generate_image.py --prompt-file "$f" \
-    --job-dir "$JOB" --asset-type main --size 1024x1024
-done
-
-for f in prompts/detail-*.txt; do
-  python3 scripts/generate_image.py --prompt-file "$f" \
-    --job-dir "$JOB" --asset-type detail --size 1024x1536
-done
+python3 scripts/generate_image.py \
+  --batch-dir prompts/ \
+  --job-dir "$JOB" \
+  --concurrency 3
 ```
 
-`JOB` 必须在循环外计算一次。把 `$(date ...)` 写进循环体，会变成每张图一个新目录，整套图包被打散。
+- **自动识别与尺寸适配**：脚本按文件名自然顺序排序，自动根据文件名或子目录（`main/`、`detail/`、`angle/`）推导资产类别；详情页自动匹配 `1024x1536`，主图自动匹配 `1024x1024`。
+- **连接复用与故障隔离**：多线程共享 HTTP Keep-Alive 连接池，单张图失败不会打断整个批处理任务。
+- **审计报告自动生成**：生成完毕后自动在 `<job-dir>/batch-summary.json` 中保存每张图片的耗时、重试次数、Prompt 文件路径与生成产物路径。
+
+*注：传统单文件串行方式（兼容保留）：*
+```bash
+for f in prompts/main-*.txt; do
+  python3 scripts/generate_image.py --prompt-file "$f" --job-dir "$JOB" --asset-type main --size 1024x1024
+done
+```
 
 **C. 用参考图锁定产品一致性**
 

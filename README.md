@@ -26,6 +26,8 @@
 ## Core Features
 
 - **End-to-End One-Click Generation**: Automatically generates 5 main images + 7~9 detail page images (by default) based on simple descriptions, with fully automated delivery.
+- **High-Throughput Batch Pipeline**: Process entire prompt directories (`--batch-dir`) or manifest files (`--batch-file`) concurrently with a built-in worker pool (`-c/--concurrency`), auto-sizing detail pages to 1024x1536 and generating structured `batch-summary.json` audit reports.
+- **Connection Reuse & Exponential Retries**: Pure standard-library HTTP Keep-Alive connection pooling with exponential backoff on HTTP 429/500/502/503/504 and network drops for resilient cross-border API calls.
 - **Visual Consistency Across Images**: Automatically aligns style and product subject to ensure the whole image set has a unified visual identity, eliminating the "patchwork" feel.
 - **Conversion-Driven Copy & Structure**: Built-in blockbuster logic, automatically generating authentic English (US) copy tailored for channels like Amazon.
 - **Broad Framework Compatibility**: Built for Agents, verified on OpenClaw, Hermes, Codex, Claude Code and WorkBuddy.
@@ -255,43 +257,51 @@ rm ~/.workbuddy/skills/lumind-product-shot   # if you symlinked it
 ### 9. Command reference
 
 ```text
-usage: lumind-product-shot [-h] [--prompt PROMPT | --prompt-file PROMPT_FILE]
+usage: lumind-product-shot [-h]
+                           [--prompt PROMPT | --prompt-file PROMPT_FILE | --batch-dir BATCH_DIR | --batch-file BATCH_FILE]
                            [--about] [--mode {auto,prompt,image}]
                            [--job-dir JOB_DIR]
                            [--asset-type {angle,angle-sheet,main,hero,detail,pdp-detail,extra,extras,custom}]
                            [--output-dir OUTPUT_DIR] [--env-file ENV_FILE]
                            [--size SIZE] [--quality QUALITY]
                            [--format {png,jpeg,webp}] [--n N] [--image IMAGE]
+                           [--concurrency CONCURRENCY]
+                           [--max-retries MAX_RETRIES]
+                           [--retry-delay RETRY_DELAY] [--timeout TIMEOUT]
 ```
 
-| Flag | Value / default | Effect |
+| Flag | Value / default | What it does |
 | --- | --- | --- |
-| `-h`, `--help` | flag | Print the full flag reference and exit |
-| `--prompt` | string | Prompt inline. Mutually exclusive with `--prompt-file` |
-| `--prompt-file` | path | Read the Prompt from a file. Use this for long Prompts |
-| `--about` | flag | Print the skill name, version and brand, then exit. No Prompt required |
-| `--mode` | `auto` (default), `prompt`, `image` | `auto` generates when the config is complete and falls back to printing the Prompt when it is not; `prompt` never calls the API; `image` requires a complete config |
-| `--job-dir` | path | Task root. Assets land in `<job-dir>/<asset dir>/`, Prompts in `<job-dir>/prompts/` |
-| `--asset-type` | `custom` (default) | Selects the output sub-directory, see the mapping below |
-| `--output-dir` | `generated-images` | Legacy flat output directory, used only when `--job-dir` is absent |
-| `--env-file` | path | Point at a specific `.env` instead of searching upward |
-| `--size` | `1024x1024` | Requested size. Use `1024x1536` for detail page screens |
-| `--quality` | unset | Provider quality hint, e.g. `low`, `medium`, `high` |
+| `-h`, `--help` | flag | Print the full argument help and exit |
+| `--prompt` | string | Pass a Prompt directly. Mutually exclusive with `--prompt-file`, `--batch-dir`, `--batch-file` |
+| `--prompt-file` | path | Read a Prompt from a text file |
+| `--batch-dir`, `--prompts-dir` | path | Directory with multiple prompt files, executed concurrently in natural sort order |
+| `--batch-file`, `--manifest` | path | Batch manifest file (JSON array, JSONL, or line-delimited file paths) |
+| `--about` | flag | Print skill name, version and brand lockup then exit, no prompt required |
+| `--mode` | `auto` (default) / `prompt` / `image` | `auto` generates image when configured, prints prompt when missing; `prompt` never calls API; `image` requires full config |
+| `--job-dir` | path | Root directory for a single run. Writes assets to `<job-dir>/<asset-dir>/`, prompts to `<job-dir>/prompts/`, and audit report to `<job-dir>/batch-summary.json` |
+| `--asset-type` | `custom` (default) | Pick the output subdirectory. In batch mode, auto-inferred if file name/folder contains `main`/`detail`/`angle` |
+| `--output-dir` | `generated-images` | Legacy flat output directory, only used when `--job-dir` is omitted |
+| `--env-file` | path | Point to a specific `.env` file |
+| `--size` | `1024x1024` | Requested size. In batch mode, detail pages auto-adapt to `1024x1536` unless explicitly overridden |
+| `--quality` | not set | Provider quality param, e.g. `low`, `medium`, `high` |
 | `--format` | `png` (default) | `png`, `jpeg` or `webp` |
-| `--n` | `1` | Images per call. Must be 1 or greater; the script rejects anything lower |
-| `--image` | path | Product reference photo. Switches the request to the image-edit endpoint for a consistent product identity |
+| `--n` | `1` | Number of images per prompt, must be >= 1 |
+| `--image` | path | Product reference image for edits endpoint |
+| `-c`, `--concurrency` | `3` (default, 1-32) | Worker thread concurrency for batch processing |
+| `--max-retries` | `3` (default) | Maximum retries on 429, 500, 502, 503, 504 or network drops. Set to 0 to disable |
+| `--retry-delay` | `2.0` (default, sec) | Base backoff delay in seconds for exponential retries |
+| `--timeout` | `120.0` (default, sec) | Network request and download timeout in seconds |
 
-`--asset-type` maps to directories like this:
+`--asset-type` mapping to subdirectories:
 
-| `--asset-type` | Writes into |
+| `--asset-type` | Target directory |
 | --- | --- |
 | `angle`, `angle-sheet` | `<job-dir>/angle-sheet/` |
 | `main`, `hero` | `<job-dir>/main/` |
 | `detail`, `pdp-detail` | `<job-dir>/detail/` |
 | `extra`, `extras` | `<job-dir>/extras/` |
 | `custom` | `<job-dir>/custom/` |
-
-Passing neither `--prompt` nor `--prompt-file` is a hard error unless you pass `--about`. That is deliberate: a missing Prompt should fail loudly, not silently produce a default image.
 
 ### 10. Recipes
 
@@ -306,23 +316,27 @@ python3 scripts/generate_image.py \
   --size 1024x1024
 ```
 
-**B. Batch a full pack from Prompt files** — this is how the sample pack further up was produced
+**B. Batch a full pack concurrently from a directory (recommended)**
 
 ```bash
 JOB="generated-images/travel-pillow-pack-$(date +%Y%m%d-%H%M%S)"
 
-for f in prompts/main-*.txt; do
-  python3 scripts/generate_image.py --prompt-file "$f" \
-    --job-dir "$JOB" --asset-type main --size 1024x1024
-done
-
-for f in prompts/detail-*.txt; do
-  python3 scripts/generate_image.py --prompt-file "$f" \
-    --job-dir "$JOB" --asset-type detail --size 1024x1536
-done
+python3 scripts/generate_image.py \
+  --batch-dir prompts/ \
+  --job-dir "$JOB" \
+  --concurrency 3
 ```
 
-Compute `JOB` once, before the loops. Expanding `$(date ...)` inside a loop would create a new directory per image and scatter the pack.
+- **Smart Auto-Sizing & Classification**: Automatically sorts prompts in natural order and infers asset types from folder or file names (`main`, `detail`, `angle`); auto-assigns `1024x1536` for detail pages and `1024x1024` for hero/main shots.
+- **Connection Pooling & Fault Isolation**: Multi-threaded worker pool shares keep-alive HTTPS connections and retries on transient errors. A failure on one image does not disrupt the rest of the batch.
+- **Audit Summary JSON**: Generates `<job-dir>/batch-summary.json` with duration, retries, and output paths for each image.
+
+*Legacy serial loop (preserved for backward compatibility):*
+```bash
+for f in prompts/main-*.txt; do
+  python3 scripts/generate_image.py --prompt-file "$f" --job-dir "$JOB" --asset-type main --size 1024x1024
+done
+```
 
 **C. Lock product identity from a reference photo**
 
