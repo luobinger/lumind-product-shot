@@ -169,6 +169,8 @@ def read_prompt(args: argparse.Namespace) -> str:
 
 def strip_env_value(value: str) -> str:
     value = value.strip()
+    if value.startswith('**') and value.endswith('**') and len(value) >= 4:
+        value = value[2:-2].strip()
     if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
         return value[1:-1]
     return value
@@ -710,9 +712,14 @@ def print_prompt_only(prompt: str, prompt_path: Path | None, missing: list[str])
 
 def image_endpoint(base_url: str, args_or_task: Any) -> str:
     image = getattr(args_or_task, "image", None)
+    base = base_url.rstrip("/")
+    if "weilai.chat" in base and "api.weilai.chat" not in base:
+        base = base.replace("weilai.chat", "api.weilai.chat")
+    if not base.endswith("/v1") and "/v1" not in base:
+        base = f"{base}/v1"
     if image:
-        return f"{base_url}/images/edits"
-    return f"{base_url}/images/generations"
+        return f"{base}/images/edits"
+    return f"{base}/images/generations"
 
 
 def save_b64_image(
