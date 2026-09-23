@@ -241,7 +241,7 @@ def format_missing_config(missing: list[str]) -> str:
 class ConnectionPool:
     """线程安全的 HTTP/HTTPS 长连接复用池。纯标准库实现。"""
 
-    def __init__(self, maxsize: int = 16, timeout: float = 120.0):
+    def __init__(self, maxsize: int = 16, timeout: float = 180.0):
         self.maxsize = maxsize
         self.timeout = timeout
         self._pools: dict[tuple[str, str, int], queue.LifoQueue[http.client.HTTPConnection]] = {}
@@ -264,12 +264,12 @@ class ConnectionPool:
             except queue.Empty:
                 break
 
-        proxies = urllib.request.getproxies()
+        proxies = urllib.request.getproxies_environment()
         proxy_url = proxies.get(scheme.lower()) or proxies.get("all")
 
-        if scheme.lower() == "https":
-            if proxy_url:
-                p = urllib.parse.urlparse(proxy_url)
+        if proxy_url:
+            p = urllib.parse.urlparse(proxy_url)
+            if scheme.lower() == "https":
                 conn = http.client.HTTPSConnection(
                     p.hostname or host,
                     p.port or 443,
@@ -281,28 +281,53 @@ class ConnectionPool:
                     auth = base64.b64encode(f"{p.username}:{p.password}".encode()).decode()
                     headers["Proxy-Authorization"] = f"Basic {auth}"
                 conn.set_tunnel(host, port, headers=headers)
+                return conn
             else:
-                conn = http.client.HTTPSConnection(
-                    host,
-                    port,
-                    timeout=self.timeout,
-                    context=self._ssl_context,
-                )
-        else:
-            if proxy_url:
-                p = urllib.parse.urlparse(proxy_url)
-                conn = http.client.HTTPConnection(
+                return http.client.HTTPConnection(
                     p.hostname or host,
                     p.port or 80,
                     timeout=self.timeout,
                 )
-            else:
-                conn = http.client.HTTPConnection(
-                    host,
-                    port,
-                    timeout=self.timeout,
-                )
-        return conn
+
+        # 直连模式：多 IP 自动容灾轮询（跳过故障/超时节点）
+        try:
+            addr_infos = socket.getaddrinfo(host, port, socket.AF_INET, socket.SOCK_STREAM)
+        except OSError:
+            addr_infos = []
+
+        if addr_infos and len(addr_infos) > 1:
+            for af, socktype, proto, canonname, sa in addr_infos:
+                try:
+                    s = socket.socket(af, socktype, proto)
+                    s.settimeout(min(4.0, self.timeout))
+                    s.connect(sa)
+                    s.settimeout(self.timeout)
+
+                    if scheme.lower() == "https":
+                        ssock = self._ssl_context.wrap_socket(s, server_hostname=host)
+                        conn = http.client.HTTPSConnection(host, port, timeout=self.timeout, context=self._ssl_context)
+                        conn.sock = ssock
+                        return conn
+                    else:
+                        conn = http.client.HTTPConnection(host, port, timeout=self.timeout)
+                        conn.sock = s
+                        return conn
+                except Exception:
+                    continue
+
+        if scheme.lower() == "https":
+            return http.client.HTTPSConnection(
+                host,
+                port,
+                timeout=self.timeout,
+                context=self._ssl_context,
+            )
+        else:
+            return http.client.HTTPConnection(
+                host,
+                port,
+                timeout=self.timeout,
+            )
 
     def release(
         self,
@@ -344,7 +369,7 @@ class HttpClient:
 
     def __init__(
         self,
-        timeout: float = 120.0,
+        timeout: float = 180.0,
         max_retries: int = 3,
         retry_delay: float = 2.0,
         pool_size: int = 16,
