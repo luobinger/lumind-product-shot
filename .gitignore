@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+
+__pycache__/
+*.pyc
+
+generated-images/
+
+.DS_Store
+**/.DS_Store
