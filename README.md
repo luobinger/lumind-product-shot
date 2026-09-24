@@ -32,7 +32,7 @@
 
 ## Real-World Showcase
 
-Sample pack: a 360° pure memory foam neck support travel pillow for Amazon US, generated end-to-end from a single product brief.
+Sample pack: an Amazon US baby balance bike (10-24 months, 4-wheel toddler walker with 135° steering limit and fully enclosed silent wheels), generated end-to-end from a single product reference photo.
 
 **Main image pack — 5 frames, one locked style system**
 
@@ -40,21 +40,21 @@ Sample pack: a 360° pure memory foam neck support travel pillow for Amazon US, 
 
 **Detail page pack — 7 vertical A+ screens, 1024x1536 each**
 
-![Detail page pack: 7 vertical 1024x1536 PDP screens, from cabin lifestyle hero to trust closure](assets/showcase/04-detail-pack.jpg)
+![Detail page pack: 7 vertical 1024x1536 PDP screens, from nursery lifestyle hero to ASTM safety trust closure](assets/showcase/04-detail-pack.jpg)
 
-**Bundle & combo expansion pack — 3 AOV booster shots, 1024x1024 each**
+**Product angle reference sheet — 6 canonical views, 1024x1024 (Pipeline Step 8)**
 
-![Combo pack: 3 high-converting bundle variations designed to increase Amazon US Average Order Value](assets/showcase/05-combo-pack.jpg)
+![Product angle reference sheet: 6 canonical physical views locking shape, proportions, and steering mechanics](assets/showcase/05-angle-sheet.jpg)
 
 **Read these three facts, not just the images:**
-1. **Conversion Core vs. Supporting Structure:** In the 7 detail screens above, the top 3 carrying direct conversion weight are the in-cabin lifestyle hero promise, the side-by-side Pain/Solution comparison matrix (addressing the infamous "head bobbing" issue), and the ergonomic chin/neck support mechanism. The remaining 4 screens build operational trust (multi-scenario versatility, 3-step roll-and-pack guide, 50,000+ customer endorsement card, and full kit with 3-year warranty).
-2. **AOV Growth via Bundle Variations:** The 3 combo shots specifically target multi-pack gifting, full-body ergonomics (cervical + lumbar support), and the complete 4-in-1 sleep system (pillow, 3D contoured eye mask, memory foam earplugs, waterproof pouch) to drive higher basket sizes.
-3. **Audit Notice:** This pack demonstrates an industrial-grade visual framework. All claims in demo copy (such as specific pricing, trial terms, or clinical endorsements) must be aligned with real vendor specifications before production deployment.
+1. **Conversion Core vs. Supporting Structure:** In the 7 detail screens above, the top 3 carrying direct conversion weight are the nursery lifestyle hero promise, the side-by-side Pain/Solution comparison matrix (addressing the critical "tipping and pinching" fears), and the 135° steering limit mechanical breakdown. The remaining 4 screens build operational trust (silent EVA indoor floor protection, 3-stage gross motor growth milestones, 15,000+ family review endorsement card, and ASTM/CPSIA certified gift packaging).
+2. **Physical Fidelity via Step 8 Angle Sheet:** When starting from a real physical product photo, the pipeline executes the Product Angle Sheet step first (locking matte sage green tubing, caramel ergonomic saddle, white enclosed hubs, and wheel proportions) before batch rendering to eliminate AI drift.
+3. **Audit Notice:** This pack demonstrates an industrial-grade visual framework. All claims in demo copy (such as specific safety certifications, weight capacities, or user counts) must be aligned with real vendor specifications before production deployment.
 
 > Full-resolution samples:
 > [Hero Main Image](assets/showcase/01-hero-main.jpg) ·
 > [Detail Page Hero Screen](assets/showcase/03-detail-hero.jpg) ·
-> [AOV Combo Bundle Pack](assets/showcase/05-combo-pack.jpg)
+> [Product Angle Sheet](assets/showcase/05-angle-sheet.jpg)
 
 ---
 
@@ -304,7 +304,7 @@ python3 scripts/generate_image.py \
 **B. Batch a full pack concurrently from a directory (recommended)**
 
 ```bash
-JOB="generated-images/travel-pillow-pack-$(date +%Y%m%d-%H%M%S)"
+JOB="generated-images/balance-bike-pack-$(date +%Y%m%d-%H%M%S)"
 
 python3 scripts/generate_image.py \
   --batch-dir prompts/ \
