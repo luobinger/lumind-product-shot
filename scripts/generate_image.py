@@ -184,7 +184,7 @@ def find_default_env_file() -> Path | None:
     return None
 
 
-def load_env_file(env_file: Path | None) -> None:
+def load_env_file(env_file: Path | None, override: bool = False) -> None:
     if env_file is None:
         return
     try:
@@ -204,7 +204,7 @@ def load_env_file(env_file: Path | None) -> None:
         key = key.strip()
         if not key:
             fail(f".env 第 {line_number} 行缺少变量名。")
-        if key not in os.environ:
+        if override or key not in os.environ:
             os.environ[key] = strip_env_value(value)
 
 
@@ -1371,7 +1371,7 @@ def main() -> None:
         return
 
     env_file = Path(args.env_file) if args.env_file else find_default_env_file()
-    load_env_file(env_file)
+    load_env_file(env_file, override=bool(args.env_file))
 
     config, missing = collect_config()
     if missing and args.mode == "image":

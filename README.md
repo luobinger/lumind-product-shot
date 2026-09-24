@@ -54,21 +54,29 @@ Hierarchy is built with font weight and whitespace, not by stacking font sizes.
 
 ## Real-World Showcase
 
-Sample pack: a travel neck pillow for Amazon US, generated end-to-end from a single product brief.
+Sample pack: a 360° pure memory foam neck support travel pillow for Amazon US, generated end-to-end from a single product brief.
 
 **Main image pack — 5 frames, one locked style system**
 
 ![Main image pack: 5 AI-generated Amazon listing frames sharing one style lock](assets/showcase/02-main-pack.jpg)
 
-**Detail page pack — 8 screens, 1024x1536 each**
+**Detail page pack — 7 vertical A+ screens, 1024x1536 each**
 
-![Detail page pack: 8 vertical 1024x1536 PDP screens, from hero promise to offer and CTA](assets/showcase/04-detail-pack.jpg)
+![Detail page pack: 7 vertical 1024x1536 PDP screens, from cabin lifestyle hero to trust closure](assets/showcase/04-detail-pack.jpg)
 
-**Read these two facts, not the image:** 3 of the 8 screens above — the hero promise, the *Precision Jaw & Chin Support* mechanism frame, and the side-by-side comparison matrix — are the ones that carry conversion weight. The other 5 are supporting frames. Also note that this pack is a clean visual demo, **not** a traffic-ready listing: every claim in the frames (the `$49.99` launch price, the `30-Night Risk-Free Trial`, the `100% Money Back Guarantee`, the `TESTED & APPROVED` badge) is AI-generated sample copy that has not been verified with a real vendor. Strip or replace such claims before publishing — see Limitations below.
+**Bundle & combo expansion pack — 3 AOV booster shots, 1024x1024 each**
+
+![Combo pack: 3 high-converting bundle variations designed to increase Amazon US Average Order Value](assets/showcase/05-combo-pack.jpg)
+
+**Read these three facts, not just the images:**
+1. **Conversion Core vs. Supporting Structure:** In the 7 detail screens above, the top 3 carrying direct conversion weight are the in-cabin lifestyle hero promise, the side-by-side Pain/Solution comparison matrix (addressing the infamous "head bobbing" issue), and the ergonomic chin/neck support mechanism. The remaining 4 screens build operational trust (multi-scenario versatility, 3-step roll-and-pack guide, 50,000+ customer endorsement card, and full kit with 3-year warranty).
+2. **AOV Growth via Bundle Variations:** The 3 combo shots specifically target multi-pack gifting, full-body ergonomics (cervical + lumbar support), and the complete 4-in-1 sleep system (pillow, 3D contoured eye mask, memory foam earplugs, waterproof pouch) to drive higher basket sizes.
+3. **Audit Notice:** This pack demonstrates an industrial-grade visual framework. All claims in demo copy (such as specific pricing, trial terms, or clinical endorsements) must be aligned with real vendor specifications before production deployment.
 
 > Full-resolution samples:
-> [hero main image](assets/showcase/01-hero-main.jpg) ·
-> [detail page hero](assets/showcase/03-detail-hero.jpg)
+> [Hero Main Image](assets/showcase/01-hero-main.jpg) ·
+> [Detail Page Hero Screen](assets/showcase/03-detail-hero.jpg) ·
+> [AOV Combo Bundle Pack](assets/showcase/05-combo-pack.jpg)
 
 ---
 
@@ -81,7 +89,7 @@ The fastest way in is to let your Agent install and configure the Skill itself �
 **Example Instruction to Agent:**
 ```text
 Use lumind-product-shot to create an Amazon US PDP image pack for this product:
-Output 5 main images + 8 detail page images.
+Output 5 main images + 7 detail page images.
 ```
 
 ---
