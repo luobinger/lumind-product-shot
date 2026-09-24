@@ -53,7 +53,7 @@ description: Build high-converting cross-border ecommerce PDP, hero image, produ
 7. 为多图任务建立 **Campaign Style Lock**，统一风格、色板、光线、布局和产品呈现。
 8. 如果是真实实物产品且用户提供了参考图，先执行 **Product Angle Sheet Pipeline**，再生成完整商品图包。
 9. 通过 **Image Copy Gate**：每张图先确定图内短文案，再写独立 Prompt。
-10. 输出主图序列、PDP 详情页序列、可执行 Prompt；如果明确要求生图，再调用 `scripts/generate_image.py`。
+10. 形成主图与详情页 Prompt 序列。只要用户需求包含“做图包 / 出图 / 生成图片 / 输出 X 张图 / PDP 图”，且本地已配置 IMG_* 凭据时，必须直接调用 `scripts/generate_image.py` 交付图片文件（Generate 模式），严禁截断并把命令行抛给用户；仅当用户明确要求“只要 Prompt / 仅看策略 / 不要生图”或凭据缺失时，才以 Prompt 模式输出。
 11. 用 **Self-review Scorecard** 自审，未达标先重写。
 
 合规模块只在用户主动要求“合规检查 / 平台合规 / 风险审查”时输出；默认只保留最小真实性底线。
@@ -489,6 +489,8 @@ python3 scripts/generate_image.py --prompt-file prompts/angle-sheet.txt --image 
 ---
 
 ## Output Format
+
+模式选择规则：只要用户需求包含“做图包 / 出图 / 生成图片 / 输出图片 / 做一套图”且本地具备 IMG_* 凭据，默认强制走 **Generate 模式** 端到端完成生图；只有在用户明确说明“只要 Prompt / 只要文案 / 只做策略”或本地缺失凭据时，才走 **策略 / Prompt 模式**。
 
 策略 / Prompt 模式：
 
