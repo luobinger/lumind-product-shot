@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""使用 OpenAI 兼容图片接口生成图片。
-
-lumind-product-shot ｜ 落落无尘（Luoluo Wuchen）出品 ｜ https://www.lumind.com.cn
+"""使用 OpenAI 兼容图片接口批量生成跨境电商商品图与 PDP 详情页。
 
 配置来自环境变量或项目根目录 `.env`：
 - IMG_BASE_URL: API 根地址，例如 https://api.openai.com/v1
@@ -11,8 +9,6 @@ lumind-product-shot ｜ 落落无尘（Luoluo Wuchen）出品 ｜ https://www.lu
 - IMG_MAX_RETRIES: 接口遇到临时错误时的最大重试次数，默认 3
 - IMG_RETRY_DELAY: 重试初始基础退避延迟（秒），默认 2.0
 - IMG_TIMEOUT: 单次网络请求超时时间（秒），默认 120.0
-
-品牌标签：lumind / 落落无尘 / Luoluo Wuchen / product-shot / PDP
 """
 
 from __future__ import annotations
@@ -42,13 +38,10 @@ from pathlib import Path
 from typing import Any
 
 
-# --- Brand identity (lumind / 落落无尘) ---
+# --- Tool identity & copyright ---
 SKILL_NAME = "lumind-product-shot"
-BRAND_NAME = "落落无尘"
-BRAND_LATIN = "Luoluo Wuchen"
-BRAND_HOME = "https://www.lumind.com.cn"
-BRAND_TAGS = ("lumind", "落落无尘", "Luoluo Wuchen", "product-shot", "PDP")
 SCRIPT_VERSION = "1.3.0"
+AUTHOR = "Luoluo Wuchen"
 
 ENV_BASE_URL = "IMG_BASE_URL"
 ENV_MODEL = "IMG_MODEL"
@@ -1232,23 +1225,19 @@ def execute_batch(
     return 0
 
 
-# --- Brand & CLI Parsing ---
+# --- Tool Info & CLI Parsing ---
 
 def print_brand_lockup() -> None:
     print(f"{SKILL_NAME} v{SCRIPT_VERSION}")
-    print(f"品牌：{BRAND_NAME}（{BRAND_LATIN}）")
-    print(f"官网：{BRAND_HOME}")
-    print(f"标签：{' / '.join(BRAND_TAGS)}")
+    print("An AI Agent tool for cross-border ecommerce product shots & PDP generation.")
+    print(f"Copyright (c) 2026 {AUTHOR}")
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         prog=SKILL_NAME,
-        description=(
-            "使用 IMG_* 环境变量调用 OpenAI 兼容图片接口生成图片。"
-            f"{BRAND_NAME}（{BRAND_LATIN}）出品。"
-        ),
-        epilog=f"{SKILL_NAME} ｜ {BRAND_NAME}（{BRAND_LATIN}）出品 ｜ {BRAND_HOME}",
+        description="使用 IMG_* 环境变量调用 OpenAI 兼容图片接口批量生成跨境电商商品图与 PDP 详情页。",
+        epilog=f"{SKILL_NAME} v{SCRIPT_VERSION} · Copyright (c) 2026 {AUTHOR}",
     )
     prompt_group = parser.add_mutually_exclusive_group()
     prompt_group.add_argument("--prompt", help="直接传入图片生成 Prompt。")

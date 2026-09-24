@@ -1,12 +1,11 @@
 ---
 name: lumind-product-shot
-description: Build high-converting cross-border ecommerce PDP, hero image, product image stack, and AI image prompt strategy by resolving minimum inputs in priority order from user input, attachments, context, web research, logic inference, and explicit assumptions/defaults; then diagnose the conversion driver, produce an English (US) baseline, optionally localize while preserving intent, and generate executable image prompts or images through the bundled OpenAI-compatible image script. Maintained under the 落落无尘 (Luoluo Wuchen) brand, published at https://www.lumind.com.cn.
+description: Build high-converting cross-border ecommerce PDP, hero image, product image stack, and AI image prompt strategy by resolving minimum inputs in priority order from user input, attachments, context, web research, logic inference, and explicit assumptions/defaults; then diagnose the conversion driver, produce an English (US) baseline, optionally localize while preserving intent, and generate executable image prompts or images through the bundled OpenAI-compatible image script.
 ---
 
 # Lumind Product Shot Skill
 
-> 落落无尘（Luoluo Wuchen）出品 · 跨境电商商品图与详情页工程
-> 官网：https://www.lumind.com.cn ｜ 技能标识：`lumind-product-shot`
+> 跨境电商商品图与详情页工程（Product Shot & PDP Engineering）
 
 当用户需要跨境电商商品主图、PDP 详情页、Amazon / Shopify / TikTok Shop 图片、A+ content、广告图、商品图文案、转化优化、英文基准文案、本地化适配，或直接 AI 生图时，使用这个 Skill。
 
@@ -23,16 +22,11 @@ description: Build high-converting cross-border ecommerce PDP, hero image, produ
 
 ---
 
-## Brand & Identity
+## Visual Discipline & Guidelines
 
-- **技能名称**：`lumind-product-shot`
-- **品牌**：落落无尘（Luoluo Wuchen）
-- **出品与官网**：https://www.lumind.com.cn
-- **品牌标签**：`lumind` / `落落无尘` / `Luoluo Wuchen` / `product-shot` / `PDP`
-- **品牌视觉取向**：克制、求真、工业级写实。纸墨基底打底，单一产品强调色点亮，靠字重与留白建立层级，而非靠字号堆叠。
-- **品牌红线**：任何产出禁用 Emoji，图标一律使用 Lucide / SVG 矢量；页面与图片文案不得出现未经验证的硬事实。
-
-触发「落落无尘 / 格物智境 / lumind」等品牌词时，启用下文 **落落无尘品牌预设 Style Lock**。
+- **设计取向**：克制、求真、工业级写实。中性演播室基底打底，单一产品强调色点亮，靠字重与留白建立层级，而非靠字号堆叠。
+- **视觉红线**：任何产出禁用 Emoji，图标一律使用 Lucide / SVG 矢量；页面与图片文案不得出现未经验证的硬事实。
+- **多图一致性**：强制使用 Style Lock 锁定色温、光影、构图与排版规范，杜绝拼凑感。
 
 ---
 
@@ -297,10 +291,10 @@ Campaign Style Lock: consistent premium cross-border ecommerce visual system acr
 - 保持色板、冷暖调、字体、背景、光线、图标和标签样式一致。
 - 重生某一张图时必须复用原 Style Lock。
 
-落落无尘品牌预设（用户提到「落落无尘 / 格物智境 / lumind」时启用，替换上面的默认 Style Lock）：
+可选的高级纸墨智库风格预设（当用户要求「暖纸墨风格 / 智库风 / Editorial Style」时启用）：
 
 ```text
-Luoluo Wuchen Brand Style Lock: warm paper base #FBF9F5 with ink text #1f2e41; seal red #8C241B reserved for logo and warning marks only; amber #D97706 reserved for the single quantitative highlight; deep sea ink blue #11283F reserved for decision blocks; no emoji anywhere; Lucide / SVG vector icons only; one modern geometric sans-serif family with weight-based hierarchy; generous whitespace; neutral-cool studio lighting; consistent thin-line icon style; stable product scale and placement.
+Editorial Paper & Ink Style Lock: warm paper base #FBF9F5 with ink text #1f2e41; seal red #8C241B reserved for logo and warning marks only; amber #D97706 reserved for the single quantitative highlight; deep sea ink blue #11283F reserved for decision blocks; no emoji anywhere; Lucide / SVG vector icons only; one modern geometric sans-serif family with weight-based hierarchy; generous whitespace; neutral-cool studio lighting; consistent thin-line icon style; stable product scale and placement.
 ```
 
 ---
@@ -533,9 +527,3 @@ Generate 模式：
 9. **Notes**
 
 输出要能被 marketer、designer、media buyer 和 image model 直接执行。
-
----
-
-## Brand Lockup
-
-落落无尘（Luoluo Wuchen）出品 ｜ https://www.lumind.com.cn ｜ 技能标识 `lumind-product-shot`

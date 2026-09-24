@@ -6,12 +6,10 @@
 
 **Generate high-converting cross-border e-commerce main images and Product Detail Pages (PDP) in one click.**
 
-落落无尘（Luoluo Wuchen）出品 ｜ [https://www.lumind.com.cn](https://www.lumind.com.cn)
-
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Tested On](https://img.shields.io/badge/Tested_on-OpenClaw_|_Hermes_|_Codex_|_Claude_Code_|_WorkBuddy-2ea44f?style=for-the-badge&logo=openai&logoColor=white)](#)
 [![AI Agent Ready](https://img.shields.io/badge/AI_Agent-Ready-8A2BE2?style=for-the-badge&logo=probot&logoColor=white)](#)
-[![Brand](https://img.shields.io/badge/Brand-落落无尘_/_Luoluo_Wuchen-8C241B?style=for-the-badge)](https://www.lumind.com.cn)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 </div>
 
@@ -20,35 +18,15 @@
 > **Lumind Product Shot** is an e-commerce image generation tool designed specifically for AI Agents.
 >
 > You simply tell it "what product you're selling" and "who the target audience is", and it will automatically write English marketing copy, plan the layout structure, and call AI image generation tools to deliver **a complete set of ready-to-publish product images (Main Images + Detail Page Images)**.
->
-> It is built and maintained under the **落落无尘（Luoluo Wuchen）** brand.
 
 ## Core Features
 
 - **End-to-End One-Click Generation**: Automatically generates 5 main images + 7~9 detail page images (by default) based on simple descriptions, with fully automated delivery.
 - **High-Throughput Batch Pipeline**: Process entire prompt directories (`--batch-dir`) or manifest files (`--batch-file`) concurrently with a built-in worker pool (`-c/--concurrency`), auto-sizing detail pages to 1024x1536 and generating structured `batch-summary.json` audit reports.
 - **Connection Reuse & Exponential Retries**: Pure standard-library HTTP Keep-Alive connection pooling with exponential backoff on HTTP 429/500/502/503/504 and network drops for resilient cross-border API calls.
-- **Visual Consistency Across Images**: Automatically aligns style and product subject to ensure the whole image set has a unified visual identity, eliminating the "patchwork" feel.
+- **Visual Consistency Across Images**: Built-in Campaign Style Lock templates (neutral studio base, single accent color, clean vector iconography) ensure the whole image set has a unified visual identity, eliminating the "patchwork" feel.
 - **Conversion-Driven Copy & Structure**: Built-in blockbuster logic, automatically generating authentic English (US) copy tailored for channels like Amazon.
 - **Broad Framework Compatibility**: Built for Agents, verified on OpenClaw, Hermes, Codex, Claude Code and WorkBuddy.
-- **Brand Style Lock Ready**: Ships a 落落无尘 brand preset (paper-ink base, single accent color, zero emoji, vector icons only) for brand-owned storefronts.
-
----
-
-## Brand: 落落无尘 / Luoluo Wuchen
-
-This Skill carries the visual discipline of the 落落无尘 brand. The preset is optional and activates when you mention 落落无尘, 格物智境 or lumind.
-
-| Token | Value | Usage |
-| --- | --- | --- |
-| Warm paper base | `#FBF9F5` | Primary canvas |
-| Ink text | `#1f2e41` | Body and headline text |
-| Seal red | `#8C241B` | Logo and warning marks only |
-| Amber | `#D97706` | The single quantitative highlight |
-| Deep sea ink blue | `#11283F` | Decision blocks |
-| Icons | Lucide / SVG vector | Zero Emoji is an absolute red line |
-
-Hierarchy is built with font weight and whitespace, not by stacking font sizes.
 
 ---
 
@@ -126,7 +104,7 @@ What a correct result looks like, and when to push back:
 | Check | Expected | Push back if |
 | --- | --- | --- |
 | Install path | a directory inside the host's own skills directory | the Agent wrote it somewhere you do not load skills from |
-| Verification | `--about` prints `lumind-product-shot v1.2.0` plus the brand lines | the Agent claims success without running the command |
+| Verification | `--about` prints tool version and copyright | the Agent claims success without running the command |
 | Credentials | stored in `.env`, which is gitignored | the key is pasted into the chat or committed |
 | Session | the Skill appears in the host's available skills list after a restart | the Agent treats the folder as proof that it loaded |
 
@@ -199,10 +177,9 @@ python3 ~/.codex/skills/lumind-product-shot/scripts/generate_image.py --about
 Expected output:
 
 ```text
-lumind-product-shot v1.2.0
-品牌：落落无尘（Luoluo Wuchen）
-官网：https://www.lumind.com.cn
-标签：lumind / 落落无尘 / Luoluo Wuchen / product-shot / PDP
+lumind-product-shot v1.3.0
+An AI Agent tool for cross-border ecommerce product shots & PDP generation.
+Copyright (c) 2026 Luoluo Wuchen
 ```
 
 Then **restart the host session** and confirm the Skill appears in the host's available skills list. Do not treat the presence of the directory as proof that it loaded.
@@ -285,7 +262,7 @@ usage: lumind-product-shot [-h]
 | `--prompt-file` | path | Read a Prompt from a text file |
 | `--batch-dir`, `--prompts-dir` | path | Directory with multiple prompt files, executed concurrently in natural sort order |
 | `--batch-file`, `--manifest` | path | Batch manifest file (JSON array, JSONL, or line-delimited file paths) |
-| `--about` | flag | Print skill name, version and brand lockup then exit, no prompt required |
+| `--about` | flag | Print tool version and copyright information then exit, no prompt required |
 | `--mode` | `auto` (default) / `prompt` / `image` | `auto` generates image when configured, prints prompt when missing; `prompt` never calls API; `image` requires full config |
 | `--job-dir` | path | Root directory for a single run. Writes assets to `<job-dir>/<asset-dir>/`, prompts to `<job-dir>/prompts/`, and audit report to `<job-dir>/batch-summary.json` |
 | `--asset-type` | `custom` (default) | Pick the output subdirectory. In batch mode, auto-inferred if file name/folder contains `main`/`detail`/`angle` |
@@ -494,11 +471,4 @@ Whenever "detail page / PDP / main image stack / full set of product images" is 
 
 ## License
 
-Released under the MIT License. Copyright (c) 2026 落落无尘 (Luoluo Wuchen). Full text in [LICENSE](LICENSE).
-
----
-
-<div align="center">
-  <p><b>落落无尘（Luoluo Wuchen）</b> ｜ <a href="https://www.lumind.com.cn">https://www.lumind.com.cn</a></p>
-  <p><i>Empowering E-commerce AI Agents with High-Converting Visuals</i></p>
-</div>
+Released under the MIT License. Copyright (c) 2026 Luoluo Wuchen. Full text in [LICENSE](LICENSE).

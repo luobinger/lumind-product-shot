@@ -6,12 +6,10 @@
 
 **帮你一键生成高转化的跨境电商主图与商品详情页（PDP）**
 
-落落无尘（Luoluo Wuchen）出品 ｜ [https://www.lumind.com.cn](https://www.lumind.com.cn)
-
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Tested On](https://img.shields.io/badge/Tested_on-OpenClaw_|_Hermes_|_Codex_|_Claude_Code_|_WorkBuddy-2ea44f?style=for-the-badge&logo=openai&logoColor=white)](#)
 [![AI Agent Ready](https://img.shields.io/badge/AI_Agent-Ready-8A2BE2?style=for-the-badge&logo=probot&logoColor=white)](#)
-[![Brand](https://img.shields.io/badge/Brand-落落无尘_/_Luoluo_Wuchen-8C241B?style=for-the-badge)](https://www.lumind.com.cn)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 </div>
 
@@ -20,35 +18,15 @@
 > **Lumind Product Shot** 是一个专为 AI Agent 设计的跨境电商图像生成工具。
 >
 > 你只需要告诉它“卖什么产品”和“受众是谁”，它就会帮你写好英文营销文案、规划好排版结构，并直接调用 AI 生图工具，把**一套可以直接上架的商品图包（主图 + 详情页图）**交给你。
->
-> 本技能由 **落落无尘（Luoluo Wuchen）** 出品并维护。
 
 ## 核心特性
 
 - **端到端一键出图**：根据简单描述自动生成 5 张主图 + 7~9 张详情页图片（默认），全自动交付。
 - **高效批量并发流水线**：单命令支持 `--batch-dir`（扫描目录）或 `--batch-file`（任务清单），内置多线程并发池（`-c/--concurrency`），自动识别主图/长图尺寸并输出结构化清单报告 `batch-summary.json`，告别低效外部 bash 循环。
 - **智能连接池与指数退避重试**：纯标准库实现 Keep-Alive 长连接复用，遇到 HTTP 429/500/502/503/504 等临时抖动自动指数退避重试，大幅提升高并发与跨国调用韧性。
-- **多图视觉一致性**：自动对齐风格与产品主体，确保整套图包视觉统一，拒绝拼凑感。
+- **多图视觉一致性与风格锁**：内置成熟的跨境电商多图视觉对齐机制（中性演播室底色、单强调色、纯矢量图标规范），确保整套图包视觉统一，拒绝拼凑感。
 - **转化导向的文案与结构**：自带爆款逻辑，自动生成原汁原味 English (US) 文案，适配 Amazon 等渠道。
 - **广泛的框架兼容**：专为 Agent 打造，已在 OpenClaw、Hermes、Codex、Claude Code、WorkBuddy 等环境验证。
-- **品牌风格锁就绪**：内置落落无尘品牌预设（纸墨基底 + 单一强调色、零 Emoji、纯矢量图标），可直接用于自有品牌店铺。
-
----
-
-## 品牌：落落无尘 / Luoluo Wuchen
-
-本技能沿用落落无尘的视觉纪律。该预设为可选项，当你提到「落落无尘 / 格物智境 / lumind」时启用。
-
-| 令牌 | 色值 | 用途 |
-| --- | --- | --- |
-| 暖纸底 | `#FBF9F5` | 主画布 |
-| 油墨字 | `#1f2e41` | 正文与标题文字 |
-| 印章红 | `#8C241B` | 仅限 Logo 与警示标记 |
-| 琥珀焦橙 | `#D97706` | 唯一量化高光 |
-| 深海墨蓝 | `#11283F` | 决策容器 |
-| 图标 | Lucide / SVG 矢量 | 零 Emoji 为绝对红线 |
-
-层级靠字重与留白建立，不靠字号堆叠。
 
 ---
 
@@ -124,7 +102,7 @@
 | 检查项 | 期望 | 出现以下情况请驳回 |
 | --- | --- | --- |
 | 安装路径 | 落在宿主自己的技能目录内 | Agent 写到你不加载技能的别处 |
-| 验真 | `--about` 打印 `lumind-product-shot v1.2.0` 及品牌行 | Agent 没跑命令就声称成功 |
+| 验真 | `--about` 打印版本号与工具版权信息 | Agent 没跑命令就声称成功 |
 | 凭证 | 存于 `.env`，且该文件被 gitignore | 密钥被贴进对话或被提交 |
 | 会话 | 重启后技能出现在宿主可用技能列表中 | Agent 把「目录存在」当成本身已加载 |
 
@@ -197,10 +175,9 @@ python3 ~/.codex/skills/lumind-product-shot/scripts/generate_image.py --about
 期望输出：
 
 ```text
-lumind-product-shot v1.2.0
-品牌：落落无尘（Luoluo Wuchen）
-官网：https://www.lumind.com.cn
-标签：lumind / 落落无尘 / Luoluo Wuchen / product-shot / PDP
+lumind-product-shot v1.3.0
+An AI Agent tool for cross-border ecommerce product shots & PDP generation.
+Copyright (c) 2026 Luoluo Wuchen
 ```
 
 随后**重启宿主会话**，确认技能出现在宿主的可用技能列表中。不要把「目录存在」当作「已加载」的凭据。
@@ -283,7 +260,7 @@ usage: lumind-product-shot [-h]
 | `--prompt-file` | 路径 | 从文件读取 Prompt，长 Prompt 用这个 |
 | `--batch-dir`、`--prompts-dir` | 路径 | 包含多个 Prompt 文本文件的目录，按文件名顺序批量并发执行 |
 | `--batch-file`、`--manifest` | 路径 | 批量任务清单文件（支持 JSON 数组、JSONL 或按行列表） |
-| `--about` | 开关 | 打印技能名、版本与品牌信息后退出，无需 Prompt |
+| `--about` | 开关 | 打印工具版本与版权信息后退出，无需 Prompt |
 | `--mode` | `auto`（默认）/ `prompt` / `image` | `auto` 配置齐全则生图、缺失则只打印 Prompt；`prompt` 绝不调用接口；`image` 要求配置完整 |
 | `--job-dir` | 路径 | 单次任务根目录。资产写入 `<job-dir>/<资产目录>/`，Prompt 写入 `<job-dir>/prompts/`，汇总写入 `<job-dir>/batch-summary.json` |
 | `--asset-type` | `custom`（默认） | 选择输出子目录，批量模式下若文件名含 `main`/`detail` 会自动推导覆盖 |
@@ -495,10 +472,3 @@ generated-images/<product-slug>-pack-<yyyymmdd-hhmmss>/
 ## 许可证
 
 本项目基于 MIT License 开源发布，版权归 2026 落落无尘（Luoluo Wuchen）所有。完整文本见 [LICENSE](LICENSE)。
-
----
-
-<div align="center">
-  <p><b>落落无尘（Luoluo Wuchen）</b> ｜ <a href="https://www.lumind.com.cn">https://www.lumind.com.cn</a></p>
-  <p><i>Empowering E-commerce AI Agents with High-Converting Visuals</i></p>
-</div>
